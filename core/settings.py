@@ -79,6 +79,10 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_file: Path = Path("./data/aide.log")
 
+    # ── Web interface ───────────────────────────────────────────
+    web_host: str = "0.0.0.0"
+    web_port: int = 3000
+
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",

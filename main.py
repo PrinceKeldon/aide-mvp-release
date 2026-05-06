@@ -83,7 +83,7 @@ def acquire_instance_lock() -> None:
             pid = int(INSTANCE_LOCK_PATH.read_text(encoding="utf-8").strip())
             os.kill(pid, 0)
             raise RuntimeError(
-                "AIDE is already running. Open http://localhost:3000 or use the tray icon."
+                f"AIDE is already running. Open http://localhost:{settings.web_port} or use the tray icon."
             )
         except ProcessLookupError:
             pass
@@ -431,10 +431,15 @@ async def main() -> None:
     agent._update_mesh_state = update_global_state
     agent._log_mesh_event = log_event
 
-    web_config = uvicorn.Config(web_app, host="0.0.0.0", port=3000, log_level="warning")
+    web_config = uvicorn.Config(
+        web_app,
+        host=settings.web_host,
+        port=settings.web_port,
+        log_level="warning",
+    )
     web_server = uvicorn.Server(web_config)
     web_task = asyncio.create_task(web_server.serve())
-    logger.info("Web interface online — http://localhost:3000")
+    logger.info(f"Web interface online — http://localhost:{settings.web_port}")
     tray = SystemTray()
     tray.start()
 

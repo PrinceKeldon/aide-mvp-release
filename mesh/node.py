@@ -108,7 +108,15 @@ class MeshDiscovery:
             },
             addresses=addresses,
         )
-        await self._zeroconf.async_register_service(self._info)
+        try:
+            await self._zeroconf.async_register_service(self._info)
+        except Exception as e:
+            logger.warning(
+                f"Mesh discovery registration unavailable — continuing without mDNS: {e}"
+            )
+            await self._zeroconf._async_close()
+            self._zeroconf = None
+            return
         ServiceBrowser(self._zeroconf, settings.mesh_service_name, self)
         logger.info(f"Mesh discovery started — agent ID: {self._identity.device_id}")
 

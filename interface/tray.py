@@ -7,6 +7,7 @@ Runs in its own thread — does not block the asyncio event loop.
 import threading
 import asyncio
 from loguru import logger
+from core.settings import settings
 
 try:
     import pystray
@@ -76,11 +77,11 @@ class SystemTray:
 
     def _open_aide(self, icon, item) -> None:
         import webbrowser
-        webbrowser.open("http://localhost:3000")
+        webbrowser.open(f"http://localhost:{settings.web_port}")
 
     def _open_settings(self, icon, item) -> None:
         import webbrowser
-        webbrowser.open("http://localhost:3000/settings")
+        webbrowser.open(f"http://localhost:{settings.web_port}/settings")
 
     def _quit(self, icon, item) -> None:
         logger.info("Quit requested from system tray")
