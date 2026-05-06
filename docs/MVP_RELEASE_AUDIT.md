@@ -6,7 +6,7 @@ Date: 2026-05-06
 
 - `git secrets --scan`: passed.
 - `git secrets --scan-history`: passed.
-- Regex scan of public candidate files: review required for placeholders and code references only.
+- Regex scan of public candidate files: passed.
 
 ## History Risk
 
@@ -38,6 +38,8 @@ Exclude from public MVP:
 
 - MVP scope lock created.
 - Fit Genie disabled as coming soon.
-- AIDE naming replaces AIDE in MVP-facing setup, settings, chat, and Your Day action copy.
-- Existing user configuration that saved `AIDE` as the agent name is normalized to `AIDE` in the MVP UI.
-- Public release repository still needs a final clean export and one more scan before publication.
+- AIDE naming is applied across MVP-facing setup, settings, chat, FinanceOS, and Your Day copy.
+- Existing user configuration that saved a legacy agent name is normalized to `AIDE` in the MVP UI.
+- Public clean-history repository published at `PrinceKeldon/aide-mvp-release`.
+- Default branch verified as `mvp-release`.
+- Release tag `v0.1.0-mvp` published and verified against commit `a269dcd`.
