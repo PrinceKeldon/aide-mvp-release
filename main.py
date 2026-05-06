@@ -245,11 +245,7 @@ async def main() -> None:
             GetProjectFinanceTool(),
         ])
     if module_settings.get("calendar"):
-        tools.append(
-            GoogleCalendarTool(
-                default_calendar_id="ZGNiYzU3Y2I5ZWE4MDc3NTkwNWJkMWIwZDMyZTcxMTQ4NjUyMDMxNzdjMTcyMjQ5ZjYzMTY1MDdiNDJiZTZhMkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
-            )
-        )
+        tools.append(GoogleCalendarTool(default_calendar_id=settings.google_calendar_id or "primary"))
 
     # ── Task queue ───────────────────────────────────────────────
     task_queue = TaskQueue(

@@ -194,7 +194,7 @@ class ProjectCallbackHandler:
 
         await query.answer("✅ Approved — AIDE is on it.")
         await query.edit_message_text(
-            f"✅ *Approved*\nVERA will: _{action}_",
+            f"✅ *Approved*\nAIDE will: _{action}_",
             parse_mode="Markdown",
         )
 

@@ -259,7 +259,7 @@ class ProactiveScheduler:
                 return  # Nothing to summarise today
 
             convo_text = "\n".join(
-                f"You: {c['user'][:80]}\nVERA: {c['assistant'][:80]}"
+                f"You: {c['user'][:80]}\nAIDE: {c['assistant'][:80]}"
                 for c in todays[-10:]
             )
 

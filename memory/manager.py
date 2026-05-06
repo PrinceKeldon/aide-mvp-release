@@ -867,7 +867,7 @@ class MemoryManager:
         if self._collection is None:
             return
         try:
-            doc = f"User: {user_message}\nVERA: {agent_reply}"
+            doc = f"User: {user_message}\nAIDE: {agent_reply}"
             doc_id = f"msg_{datetime.utcnow().timestamp()}"
             self._collection.add(
                 documents=[doc],

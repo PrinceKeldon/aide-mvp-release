@@ -235,6 +235,24 @@ class SetupLLMRequest(BaseModel):
     telegram_bot_token: str = ""
 
 
+class IntegrationSettingsRequest(BaseModel):
+    email_address: str = ""
+    email_password: str = ""
+    imap_host: str = "imap.gmail.com"
+    imap_port: int = 993
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    email_safety_tier: str = "approve"
+    google_calendar_credentials_path: str = "./data/google/calendar_credentials.json"
+    google_calendar_token_path: str = "./data/google/calendar_token.json"
+    google_calendar_id: str = "primary"
+    google_calendar_label: str = "Google Calendar"
+    google_calendar_timezone: str = "UTC"
+    calendar_ics_path: str = ""
+    calendar_ics_label: str = "Local Calendar"
+    calendar_ics_timezone: str = "UTC"
+
+
 class ModuleSettingsRequest(BaseModel):
     modules: dict[str, bool]
 
@@ -1548,6 +1566,77 @@ async def save_setup_llm(req: SetupLLMRequest):
         if env_key in updates:
             setattr(settings, attr, updates[env_key])
     return {"ok": True, **provider_status()}
+
+
+@app.get("/api/settings/integrations")
+async def get_integration_settings():
+    status = provider_status()
+    return {
+        "ok": True,
+        "integrations": status.get("integrations", {}),
+        "values": status.get("integration_values", {}),
+    }
+
+
+@app.put("/api/settings/integrations")
+async def update_integration_settings(req: IntegrationSettingsRequest):
+    tier = req.email_safety_tier if req.email_safety_tier in {"approve", "notify", "autonomous"} else "approve"
+    updates = {
+        "EMAIL_ADDRESS": req.email_address.strip(),
+        "IMAP_HOST": req.imap_host.strip() or "imap.gmail.com",
+        "IMAP_PORT": str(req.imap_port or 993),
+        "SMTP_HOST": req.smtp_host.strip() or "smtp.gmail.com",
+        "SMTP_PORT": str(req.smtp_port or 587),
+        "EMAIL_SAFETY_TIER": tier,
+        "GOOGLE_CALENDAR_CREDENTIALS_PATH": req.google_calendar_credentials_path.strip()
+        or "./data/google/calendar_credentials.json",
+        "GOOGLE_CALENDAR_TOKEN_PATH": req.google_calendar_token_path.strip()
+        or "./data/google/calendar_token.json",
+        "GOOGLE_CALENDAR_ID": req.google_calendar_id.strip() or "primary",
+        "GOOGLE_CALENDAR_LABEL": req.google_calendar_label.strip() or "Google Calendar",
+        "GOOGLE_CALENDAR_TIMEZONE": req.google_calendar_timezone.strip() or "UTC",
+        "CALENDAR_ACCOUNT_GOOGLE_PRIMARY_PROVIDER": "google",
+        "CALENDAR_ACCOUNT_GOOGLE_PRIMARY_GOOGLE_CALENDAR_ID": req.google_calendar_id.strip() or "primary",
+        "CALENDAR_ACCOUNT_GOOGLE_PRIMARY_LABEL": req.google_calendar_label.strip() or "Google Calendar",
+        "CALENDAR_ACCOUNT_GOOGLE_PRIMARY_TIMEZONE": req.google_calendar_timezone.strip() or "UTC",
+        "CALENDAR_ICS_PATH": req.calendar_ics_path.strip(),
+        "CALENDAR_ICS_LABEL": req.calendar_ics_label.strip() or "Local Calendar",
+        "CALENDAR_ICS_TIMEZONE": req.calendar_ics_timezone.strip() or "UTC",
+        "CALENDAR_ACCOUNT_LOCAL_ICS_PATH": req.calendar_ics_path.strip(),
+        "CALENDAR_ACCOUNT_LOCAL_LABEL": req.calendar_ics_label.strip() or "Local Calendar",
+        "CALENDAR_ACCOUNT_LOCAL_TIMEZONE": req.calendar_ics_timezone.strip() or "UTC",
+    }
+    if req.email_password.strip():
+        updates["EMAIL_PASSWORD"] = req.email_password.strip()
+    write_env_values(updates)
+    for env_key, attr in {
+        "EMAIL_ADDRESS": "email_address",
+        "EMAIL_PASSWORD": "email_password",
+        "IMAP_HOST": "imap_host",
+        "IMAP_PORT": "imap_port",
+        "SMTP_HOST": "smtp_host",
+        "SMTP_PORT": "smtp_port",
+        "EMAIL_SAFETY_TIER": "email_safety_tier",
+        "GOOGLE_CALENDAR_CREDENTIALS_PATH": "google_calendar_credentials_path",
+        "GOOGLE_CALENDAR_TOKEN_PATH": "google_calendar_token_path",
+        "GOOGLE_CALENDAR_ID": "google_calendar_id",
+        "GOOGLE_CALENDAR_LABEL": "google_calendar_label",
+        "GOOGLE_CALENDAR_TIMEZONE": "google_calendar_timezone",
+        "CALENDAR_ICS_PATH": "calendar_ics_path",
+        "CALENDAR_ICS_LABEL": "calendar_ics_label",
+        "CALENDAR_ICS_TIMEZONE": "calendar_ics_timezone",
+    }.items():
+        if env_key in updates:
+            value = updates[env_key]
+            if attr.endswith("_port"):
+                value = int(value)
+            setattr(settings, attr, value)
+    status = provider_status()
+    return {
+        "ok": True,
+        "integrations": status.get("integrations", {}),
+        "values": status.get("integration_values", {}),
+    }
 
 
 @app.post("/api/setup/complete")

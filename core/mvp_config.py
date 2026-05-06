@@ -203,6 +203,30 @@ def _quote_env(value: str) -> str:
 
 def provider_status() -> dict[str, Any]:
     env = read_env_values()
+    email_address = env.get("EMAIL_ADDRESS") or os.environ.get("EMAIL_ADDRESS") or ""
+    email_password = env.get("EMAIL_PASSWORD") or os.environ.get("EMAIL_PASSWORD") or ""
+    google_credentials_path = (
+        env.get("GOOGLE_CALENDAR_CREDENTIALS_PATH")
+        or os.environ.get("GOOGLE_CALENDAR_CREDENTIALS_PATH")
+        or "./data/google/calendar_credentials.json"
+    )
+    google_token_path = (
+        env.get("GOOGLE_CALENDAR_TOKEN_PATH")
+        or os.environ.get("GOOGLE_CALENDAR_TOKEN_PATH")
+        or "./data/google/calendar_token.json"
+    )
+    google_calendar_id = (
+        env.get("GOOGLE_CALENDAR_ID")
+        or env.get("CALENDAR_ACCOUNT_GOOGLE_PRIMARY_GOOGLE_CALENDAR_ID")
+        or os.environ.get("GOOGLE_CALENDAR_ID")
+        or "primary"
+    )
+    ics_path = (
+        env.get("CALENDAR_ICS_PATH")
+        or env.get("CALENDAR_ACCOUNT_LOCAL_ICS_PATH")
+        or os.environ.get("CALENDAR_ICS_PATH")
+        or ""
+    )
     return {
         "agent_name": agent_name(),
         "default_llm": env.get("DEFAULT_LLM") or os.environ.get("DEFAULT_LLM") or "groq",
@@ -215,6 +239,43 @@ def provider_status() -> dict[str, Any]:
         "telegram_configured": bool(
             env.get("TELEGRAM_BOT_TOKEN") or os.environ.get("TELEGRAM_BOT_TOKEN")
         ),
+        "integrations": {
+            "email_configured": bool(email_address and email_password),
+            "google_calendar_configured": bool(
+                google_calendar_id
+                and Path(google_credentials_path).expanduser().exists()
+                and Path(google_token_path).expanduser().exists()
+            ),
+            "local_calendar_configured": bool(ics_path),
+        },
+        "integration_values": {
+            "email_address": email_address,
+            "imap_host": env.get("IMAP_HOST") or os.environ.get("IMAP_HOST") or "imap.gmail.com",
+            "imap_port": env.get("IMAP_PORT") or os.environ.get("IMAP_PORT") or "993",
+            "smtp_host": env.get("SMTP_HOST") or os.environ.get("SMTP_HOST") or "smtp.gmail.com",
+            "smtp_port": env.get("SMTP_PORT") or os.environ.get("SMTP_PORT") or "587",
+            "email_safety_tier": env.get("EMAIL_SAFETY_TIER") or os.environ.get("EMAIL_SAFETY_TIER") or "approve",
+            "google_calendar_credentials_path": google_credentials_path,
+            "google_calendar_token_path": google_token_path,
+            "google_calendar_id": google_calendar_id,
+            "google_calendar_label": env.get("GOOGLE_CALENDAR_LABEL")
+            or env.get("CALENDAR_ACCOUNT_GOOGLE_PRIMARY_LABEL")
+            or os.environ.get("GOOGLE_CALENDAR_LABEL")
+            or "Google Calendar",
+            "google_calendar_timezone": env.get("GOOGLE_CALENDAR_TIMEZONE")
+            or env.get("CALENDAR_ACCOUNT_GOOGLE_PRIMARY_TIMEZONE")
+            or os.environ.get("GOOGLE_CALENDAR_TIMEZONE")
+            or "UTC",
+            "calendar_ics_path": ics_path,
+            "calendar_ics_label": env.get("CALENDAR_ICS_LABEL")
+            or env.get("CALENDAR_ACCOUNT_LOCAL_LABEL")
+            or os.environ.get("CALENDAR_ICS_LABEL")
+            or "Local Calendar",
+            "calendar_ics_timezone": env.get("CALENDAR_ICS_TIMEZONE")
+            or env.get("CALENDAR_ACCOUNT_LOCAL_TIMEZONE")
+            or os.environ.get("CALENDAR_ICS_TIMEZONE")
+            or "UTC",
+        },
     }
 
 
