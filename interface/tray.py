@@ -42,22 +42,26 @@ class SystemTray:
         logger.info("System tray icon started")
 
     def _run(self) -> None:
-        menu = pystray.Menu(
-            pystray.MenuItem("AIDE — Agent online", None, enabled=False),
-            pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Open AIDE", self._open_aide),
-            pystray.MenuItem("Settings", self._open_settings),
-            pystray.MenuItem("Open Telegram", self._open_telegram),
-            pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Quit AIDE", self._quit),
-        )
-        self._icon = pystray.Icon(
-            name="AIDE",
-            icon=_make_icon(online=True),
-            title="AIDE — Agent online",
-            menu=menu,
-        )
-        self._icon.run()
+        try:
+            menu = pystray.Menu(
+                pystray.MenuItem("AIDE — Agent online", None, enabled=False),
+                pystray.Menu.SEPARATOR,
+                pystray.MenuItem("Open AIDE", self._open_aide),
+                pystray.MenuItem("Settings", self._open_settings),
+                pystray.MenuItem("Open Telegram", self._open_telegram),
+                pystray.Menu.SEPARATOR,
+                pystray.MenuItem("Quit AIDE", self._quit),
+            )
+            self._icon = pystray.Icon(
+                name="AIDE",
+                icon=_make_icon(online=True),
+                title="AIDE — Agent online",
+                menu=menu,
+            )
+            self._icon.run()
+        except Exception as exc:
+            logger.warning(f"System tray unavailable in this environment: {exc}")
+            self._icon = None
 
     def set_status(self, online: bool, message: str = "") -> None:
         if self._icon:

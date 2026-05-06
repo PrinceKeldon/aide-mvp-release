@@ -45,11 +45,15 @@ class NativeVoiceListener:
     async def start_listening(self):
         self.is_listening = True
         logger.info("Native Voice Listener active (System-wide)")
-        with sd.InputStream(
-            samplerate=self.sample_rate, channels=1, callback=self._audio_callback
-        ):
-            while self.is_listening:
-                await asyncio.sleep(1)
+        try:
+            with sd.InputStream(
+                samplerate=self.sample_rate, channels=1, callback=self._audio_callback
+            ):
+                while self.is_listening:
+                    await asyncio.sleep(1)
+        except Exception as exc:
+            self.is_listening = False
+            logger.warning(f"Native voice listener unavailable: {exc}")
 
     async def trigger_session(self, action: str, task_name: Optional[str] = None):
         if action == "start":
