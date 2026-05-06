@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIDE Finance</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #d9dee7;
+      --accent: #0f766e;
+      --warn: #b45309;
+      --bad: #b42318;
+      --good: #067647;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.94);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 20px; letter-spacing: 0; }
+    h2 { font-size: 15px; margin-bottom: 12px; }
+    a { color: var(--accent); text-decoration: none; }
+    .nav { display: flex; gap: 12px; color: var(--muted); font-size: 14px; }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .sidebar { display: flex; flex-direction: column; gap: 14px; }
+    .month-list, .upload, .content { display: grid; gap: 10px; }
+    .month-btn, button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--ink);
+      padding: 8px 10px;
+      font: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; }
+    .month-btn.active { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+    input, select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 8px 10px;
+      font: inherit;
+      background: #fff;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .metric { padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .metric span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+    .metric strong { font-size: 22px; font-weight: 700; overflow-wrap: anywhere; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 20px; }
+    .split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    .mini-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .mini-stat { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fff; }
+    .mini-stat span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    .mini-stat strong { font-size: 17px; }
+    .alert-list, .review-list, .compact-list { display: grid; gap: 8px; }
+    .alert {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+    .alert.warning { border-left-color: var(--warn); }
+    .alert.review { border-left-color: var(--bad); }
+    .alert.success { border-left-color: var(--good); }
+    .alert strong, .compact-item strong { display: block; margin-bottom: 4px; }
+    .review-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) 110px 170px;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+    .review-merchant { overflow-wrap: anywhere; }
+    .compact-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      font-size: 14px;
+    }
+    .bar-list { display: grid; gap: 10px; }
+    .bar-row { display: grid; grid-template-columns: 120px 1fr 88px; gap: 10px; align-items: center; font-size: 13px; }
+    .bar-track { height: 10px; border-radius: 999px; background: #eef1f5; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: var(--accent); }
+    .bar-fill.warn { background: var(--warn); }
+    .range-controls { display: grid; gap: 10px; }
+    .check-row {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 8px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .check-row input { min-height: auto; width: auto; margin-top: 2px; }
+    .chat-panel { display: grid; grid-template-rows: auto minmax(280px, 42vh) auto; gap: 12px; }
+    .chat-log {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-message {
+      max-width: 88%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    .chat-message.user { align-self: flex-end; background: #ecfdf3; border-color: #abefc6; }
+    .chat-message.assistant { align-self: flex-start; background: #f9fafb; }
+    .chat-form { display: grid; grid-template-columns: 1fr 112px; gap: 10px; }
+    textarea {
+      width: 100%;
+      min-height: 44px;
+      max-height: 140px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px;
+      resize: vertical;
+      font: inherit;
+      background: #fff;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .status { font-weight: 650; }
+    .status.over { color: var(--bad); }
+    .status.under { color: var(--warn); }
+    .status.on_track { color: var(--good); }
+    .markdown { white-space: pre-wrap; line-height: 1.48; color: #344054; font-size: 14px; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .empty { padding: 32px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; }
+    @media (max-width: 880px) {
+      main, .grid, .split { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      header { align-items: flex-start; flex-direction: column; }
+      .chat-form { grid-template-columns: 1fr; }
+      .review-item { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      main { padding: 14px; }
+      .metrics, .mini-grid { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>FinanceOS</h1>
+      <p class="muted">Local statement intelligence for AIDE.</p>
+    </div>
+    <nav class="nav">
+      <a href="/">Chat</a>
+      <a href="/your-day">Your Day</a>
+      <a href="/settings">Settings</a>
+    </nav>
+  </header>
+  <main>
+    <aside class="sidebar">
+      <section class="panel upload">
+        <h2>Statement Upload</h2>
+        <input id="statement-file" type="file" accept="application/pdf">
+        <select id="bank-name">
+          <option value="generic">Generic PDF</option>
+          <option value="deutsche_bank">Deutsche Bank</option>
+          <option value="n26">N26</option>
+        </select>
+        <label class="check-row">
+          <input id="hard-refresh" type="checkbox">
+          <span>Hard refresh this statement: delete prior rows for the same PDF, re-ingest, re-categorise, and rewrite reports.</span>
+        </label>
+        <button class="primary" onclick="uploadStatement()">Process Statement</button>
+        <p class="muted" id="upload-status">PDF text is processed locally.</p>
+      </section>
+      <section class="panel">
+        <h2>Months</h2>
+        <div class="month-list" id="month-list"></div>
+      </section>
+      <section class="panel range-controls">
+        <h2>Range</h2>
+        <select id="range-period">
+          <option value="all">All Ingested Data</option>
+          <option value="month">Month</option>
+          <option value="quarter">Quarter</option>
+          <option value="custom">Custom</option>
+        </select>
+        <input id="range-start" type="date">
+        <input id="range-end" type="date">
+        <button onclick="loadRangeAnalysis()">Apply Range</button>
+      </section>
+    </aside>
+    <section class="content" id="content">
+      <div class="empty">No finance month selected.</div>
+    </section>
+  </main>
+  <script>
+    let activeMonth = location.pathname.split('/').filter(Boolean)[1] || '';
+    let sendingFinanceChat = false;
+    let activeCategories = [];
+    let activeRange = {period: 'all'};
+    let reportLoaded = false;
+
+    function money(value) {
+      return `EUR ${Number(value || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
+
+    async function loadMonths() {
+      const res = await fetch('/api/finance/months');
+      const payload = await res.json();
+      const months = payload.months || [];
+      const list = document.getElementById('month-list');
+      list.innerHTML = months.length ? '' : '<p class="muted">No statements ingested yet.</p>';
+      months.forEach(month => {
+        const btn = document.createElement('button');
+        btn.className = `month-btn ${month.month_key === activeMonth ? 'active' : ''}`;
+        btn.textContent = `${month.month_key} · ${month.count} transactions`;
+        btn.onclick = () => selectMonth(month.month_key);
+        list.appendChild(btn);
+      });
+      if (!activeMonth && months[0]) activeMonth = months[0].month_key;
+      if (!reportLoaded) {
+        reportLoaded = true;
+        if (months.length) loadRangeReport({period: 'all'});
+      }
+    }
+
+    function selectMonth(monthKey) {
+      activeMonth = monthKey;
+      history.replaceState(null, '', `/finance/${monthKey}`);
+      document.getElementById('range-period').value = 'month';
+      activeRange = {period: 'month', month_key: monthKey};
+      loadMonths();
+      loadRangeReport(activeRange);
+    }
+
+    async function loadRangeReport(range) {
+      activeRange = {...range};
+      const params = new URLSearchParams({period: activeRange.period || 'all'});
+      if (activeRange.month_key) params.set('month_key', activeRange.month_key);
+      if (activeRange.start) params.set('start', activeRange.start);
+      if (activeRange.end) params.set('end', activeRange.end);
+      const res = await fetch(`/api/finance/analysis/report?${params.toString()}`);
+      const payload = await res.json();
+      if (!payload.ok) {
+        document.getElementById('content').innerHTML = `<div class="empty">${escapeHtml(payload.detail || 'Finance report failed.')}</div>`;
+        return;
+      }
+      renderFinanceReport(payload);
+    }
+
+    function renderFinanceReport(payload) {
+      const c = payload.comparison;
+      const insights = payload.insights || {};
+      activeCategories = insights.categories || [];
+      const rangeLabel = c.date_range?.start && c.date_range?.end
+        ? `${c.date_range.start} to ${c.date_range.end}`
+        : 'No transaction range';
+      document.getElementById('content').innerHTML = `
+        <section class="panel">
+          <h2>${escapeHtml(c.month_key || 'Finance Report')}</h2>
+          <p class="muted">${escapeHtml(rangeLabel)} · ${c.transaction_count || 0} transactions · targets scaled to ${Number(c.target_periods || 1).toFixed(2)} month(s)</p>
+        </section>
+        <section class="metrics">
+          <div class="metric"><span>Income</span><strong>${money(c.total_income)}</strong></div>
+          <div class="metric"><span>Spend</span><strong>${money(c.total_spend)}</strong></div>
+          <div class="metric"><span>Net</span><strong>${money(c.net_position)}</strong></div>
+          <div class="metric"><span>Savings Rate</span><strong>${c.savings_rate}%</strong></div>
+        </section>
+        <section class="panel">
+          <h2>Alerts</h2>
+          ${renderAlerts(insights.alerts || [])}
+        </section>
+        <section class="split">
+          <div class="panel">
+            <h2>Income vs Spend</h2>
+            ${renderIncomeSpendChart(c)}
+          </div>
+          <div class="panel">
+            <h2>Spend by Category</h2>
+            ${renderSpendChart(c.category_variances || [])}
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Range Summary</h2>
+          <div id="range-summary">${renderRangeSummary(insights.range_summary)}</div>
+        </section>
+        <section class="panel">
+          <h2>Needs Review</h2>
+          ${renderReviewQueue(insights.review_queue || [], activeCategories)}
+        </section>
+        <section class="grid">
+          <div class="panel">
+            <h2>Category Variance</h2>
+            <table>
+              <thead><tr><th>Category</th><th>Actual</th><th>Target</th><th>Status</th></tr></thead>
+              <tbody>
+                ${c.category_variances.filter(row => row.actual || row.target).map(row => `
+                  <tr>
+                    <td>${escapeHtml(row.category)}</td>
+                    <td>${money(row.actual)}</td>
+                    <td>${money(row.target)}</td>
+                    <td class="status ${escapeHtml(row.status)}">${escapeHtml(row.status.replace('_', ' '))}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <h2>Attention</h2>
+            <p class="muted">${c.uncategorised_count} uncategorised transactions totalling ${money(c.uncategorised_total)}.</p>
+            <br>
+            <h2>Telegram Summary</h2>
+            <div class="markdown">${escapeHtml(payload.telegram)}</div>
+          </div>
+        </section>
+        <section class="split">
+          <div class="panel">
+            <h2>Recurring</h2>
+            ${renderRecurring(insights.recurring || [])}
+          </div>
+          <div class="panel">
+            <h2>Target Suggestions</h2>
+            ${renderTargetSuggestions(insights.target_suggestions || [])}
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Full Report</h2>
+          <div class="markdown">${escapeHtml(payload.markdown)}</div>
+        </section>
+        <section class="panel chat-panel">
+          <div>
+            <h2>AIDE Finance Chat</h2>
+            <p class="muted">Scoped to ${escapeHtml(activeMonth || c.month_key)} and persisted in the FinanceOS Obsidian vault.</p>
+          </div>
+          <div class="chat-log" id="finance-chat-log">
+            <div class="muted">Loading finance chat...</div>
+          </div>
+          <form class="chat-form" onsubmit="sendFinanceChat(event)">
+            <textarea id="finance-chat-input" placeholder="Ask about income, spending, uncategorised items, or budget changes for ${escapeHtml(activeMonth || c.month_key)}."></textarea>
+            <button class="primary" id="finance-chat-send" type="submit">Send</button>
+          </form>
+        </section>
+      `;
+      if (activeMonth) loadFinanceChat(activeMonth);
+    }
+
+    function renderAlerts(alerts) {
+      if (!alerts.length) return '<p class="muted">No active finance alerts.</p>';
+      return `<div class="alert-list">${alerts.map(alert => `
+        <div class="alert ${escapeHtml(alert.level)}">
+          <strong>${escapeHtml(alert.title)}</strong>
+          <span class="muted">${escapeHtml(alert.message)}</span>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    function renderIncomeSpendChart(c) {
+      const max = Math.max(Number(c.total_income || 0), Number(c.total_spend || 0), Math.abs(Number(c.net_position || 0)), 1);
+      return `<div class="bar-list">
+        ${barRow('Income', c.total_income, max, '')}
+        ${barRow('Spend', c.total_spend, max, 'warn')}
+        ${barRow('Net', Math.abs(c.net_position || 0), max, Number(c.net_position || 0) < 0 ? 'warn' : '')}
+      </div>`;
+    }
+
+    function renderSpendChart(rows) {
+      const spendRows = rows.filter(row => row.actual > 0 && row.category !== 'Income').sort((a, b) => b.actual - a.actual).slice(0, 6);
+      if (!spendRows.length) return '<p class="muted">No category spend yet.</p>';
+      const max = Math.max(...spendRows.map(row => Number(row.actual || 0)), 1);
+      return `<div class="bar-list">${spendRows.map(row => barRow(row.category, row.actual, max, row.status === 'over' ? 'warn' : '')).join('')}</div>`;
+    }
+
+    function barRow(label, value, max, className) {
+      const pct = Math.max(2, Math.min(100, Number(value || 0) / max * 100));
+      return `<div class="bar-row">
+        <span>${escapeHtml(label)}</span>
+        <div class="bar-track"><div class="bar-fill ${className}" style="width:${pct}%"></div></div>
+        <strong>${money(value)}</strong>
+      </div>`;
+    }
+
+    function renderRangeSummary(summary) {
+      if (!summary) return '<p class="muted">No range selected.</p>';
+      return `<div class="mini-grid">
+        <div class="mini-stat"><span>${escapeHtml(summary.start)} to ${escapeHtml(summary.end)}</span><strong>${summary.transaction_count || 0} transactions</strong></div>
+        <div class="mini-stat"><span>Income</span><strong>${money(summary.total_income)}</strong></div>
+        <div class="mini-stat"><span>Spend</span><strong>${money(summary.total_spend)}</strong></div>
+      </div>`;
+    }
+
+    function renderReviewQueue(rows, categories) {
+      if (!rows.length) return '<p class="muted">No uncategorised transactions for this month.</p>';
+      const options = categories.filter(category => category !== 'Uncategorised').map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('');
+      return `<div class="review-list">${rows.map(row => `
+        <div class="review-item">
+          <div class="review-merchant">
+            <strong>${escapeHtml(row.description)}</strong>
+            <span class="muted">${escapeHtml(row.date)} · ${escapeHtml(row.month_key)}</span>
+          </div>
+          <strong>${money(row.amount)}</strong>
+          <select onchange="updateTransactionCategory('${escapeHtml(row.id)}', this.value)">
+            <option value="">Category</option>
+            ${options}
+          </select>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    function renderRecurring(rows) {
+      if (!rows.length) return '<p class="muted">No recurring patterns detected yet.</p>';
+      return `<div class="compact-list">${rows.map(row => `
+        <div class="compact-item">
+          <strong>${escapeHtml(row.merchant)}</strong>
+          <span class="muted">${escapeHtml(row.category)} · ${escapeHtml(row.cadence)} · ${money(row.average_amount)} · ${row.count} hits</span>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    function renderTargetSuggestions(rows) {
+      if (!rows.length) return '<p class="muted">No target suggestions yet.</p>';
+      return `<div class="compact-list">${rows.slice(0, 8).map(row => `
+        <div class="compact-item">
+          <strong>${escapeHtml(row.category)}</strong>
+          <span class="muted">Suggest ${money(row.suggested_target)} · current ${money(row.current_target)} · ${escapeHtml(row.confidence)}</span>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    async function updateTransactionCategory(transactionId, category) {
+      if (!category) return;
+      await fetch(`/api/finance/transactions/${encodeURIComponent(transactionId)}/category`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({category, learn_rule: true})
+      });
+      await loadMonths();
+      await loadRangeReport(activeRange);
+    }
+
+    async function loadRangeAnalysis() {
+      const period = document.getElementById('range-period').value;
+      const nextRange = {period};
+      if (period === 'month' || period === 'quarter') {
+        if (!activeMonth) return;
+        nextRange.month_key = activeMonth;
+      }
+      if (period === 'custom') {
+        const start = document.getElementById('range-start').value;
+        const end = document.getElementById('range-end').value;
+        if (start) nextRange.start = start;
+        if (end) nextRange.end = end;
+      }
+      await loadRangeReport(nextRange);
+    }
+
+    async function loadFinanceChat(monthKey) {
+      const log = document.getElementById('finance-chat-log');
+      if (!log) return;
+      log.innerHTML = '<div class="muted">Loading finance chat...</div>';
+      const res = await fetch(`/api/finance/chat/history?month_key=${encodeURIComponent(monthKey)}`);
+      const payload = await res.json();
+      const messages = payload.messages || [];
+      if (!messages.length) {
+        log.innerHTML = '<div class="muted">No finance chat for this month yet.</div>';
+        return;
+      }
+      log.innerHTML = messages.map(renderChatMessage).join('');
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function renderChatMessage(message) {
+      const role = message.role === 'user' ? 'user' : 'assistant';
+      return `<div class="chat-message ${role}">${escapeHtml(message.content)}</div>`;
+    }
+
+    async function sendFinanceChat(event) {
+      event.preventDefault();
+      if (sendingFinanceChat) return;
+      const input = document.getElementById('finance-chat-input');
+      const button = document.getElementById('finance-chat-send');
+      const log = document.getElementById('finance-chat-log');
+      const message = (input?.value || '').trim();
+      if (!message || !activeMonth || !log) return;
+      sendingFinanceChat = true;
+      button.disabled = true;
+      log.innerHTML += renderChatMessage({role: 'user', content: message});
+      log.innerHTML += '<div class="chat-message assistant" id="finance-chat-working">Checking FinanceOS data...</div>';
+      log.scrollTop = log.scrollHeight;
+      input.value = '';
+      try {
+        const res = await fetch('/api/finance/chat', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({message, month_key: activeMonth})
+        });
+        const payload = await res.json();
+        const working = document.getElementById('finance-chat-working');
+        if (working) working.remove();
+        log.innerHTML += renderChatMessage({role: 'assistant', content: payload.reply || payload.detail || 'Finance chat failed.'});
+        log.scrollTop = log.scrollHeight;
+      } finally {
+        sendingFinanceChat = false;
+        button.disabled = false;
+      }
+    }
+
+    async function uploadStatement() {
+      const file = document.getElementById('statement-file').files[0];
+      const status = document.getElementById('upload-status');
+      if (!file) {
+        status.textContent = 'Choose a PDF statement first.';
+        return;
+      }
+      const data = new FormData();
+      data.append('file', file);
+      const bank = encodeURIComponent(document.getElementById('bank-name').value);
+      const hardRefresh = document.getElementById('hard-refresh')?.checked ? 'true' : 'false';
+      status.textContent = hardRefresh === 'true' ? 'Hard refreshing locally...' : 'Processing locally...';
+      const res = await fetch(`/api/finance/upload?bank_name=${bank}&hard_refresh=${hardRefresh}`, { method: 'POST', body: data });
+      const payload = await res.json();
+      if (!res.ok || !payload.ok) {
+        status.textContent = payload.detail || 'Upload failed.';
+        return;
+      }
+      const months = (payload.month_keys || [payload.month_key]).join(', ');
+      const prefix = payload.hard_refresh ? `Hard refreshed ${payload.deleted_count || 0} old rows and wrote` : 'Ingested';
+      status.textContent = `${prefix} ${payload.inserted_count} transactions across ${months}.`;
+      activeMonth = payload.month_key;
+      if (payload.date_range?.start && payload.date_range?.end) {
+        document.getElementById('range-period').value = 'custom';
+        document.getElementById('range-start').value = payload.date_range.start;
+        document.getElementById('range-end').value = payload.date_range.end;
+        activeRange = {period: 'custom', start: payload.date_range.start, end: payload.date_range.end};
+      } else {
+        document.getElementById('range-period').value = 'all';
+        activeRange = {period: 'all'};
+      }
+      await loadMonths();
+      await loadRangeReport(activeRange);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[char]));
+    }
+
+    loadMonths();
+  </script>
+</body>
+</html>
