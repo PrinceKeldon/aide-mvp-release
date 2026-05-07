@@ -10,6 +10,7 @@ from typing import Any
 from core.finance_engine import FinanceEngine
 from core.finance_goals import FinanceGoals
 from core.finance_memory import FinanceMemoryVault
+from core.settings import settings
 
 
 class FinanceReportGenerator:
@@ -65,7 +66,7 @@ class FinanceReportGenerator:
             f"Surplus: EUR {c['net_position']:.0f} · Savings rate: {c['savings_rate']:.1f}%\n\n"
             "3 things to know:\n"
             f"1. {things[0]}\n2. {things[1]}\n3. {things[2]}\n\n"
-            f"Full report: http://localhost:3000/finance/{c['month_key']}"
+            f"Full report: http://localhost:{settings.web_port}/finance/{c['month_key']}"
         )
 
     def markdown_report(self, c: dict[str, Any]) -> str:

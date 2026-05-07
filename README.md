@@ -29,7 +29,7 @@ cp .env.example .env
 venv/bin/python main.py
 ```
 
-Open `http://localhost:3000` and complete setup in the browser. To run a second local instance, set a different port before launch, for example `WEB_PORT=3010 MESH_PORT=7433 venv/bin/python main.py`.
+Open `http://localhost:3010` and complete setup in the browser. To run a second local instance, set a different port before launch, for example `WEB_PORT=3011 MESH_PORT=7433 venv/bin/python main.py`.
 
 ## Privacy
 

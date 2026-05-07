@@ -87,7 +87,7 @@ class Settings(BaseSettings):
 
     # ── Web interface ───────────────────────────────────────────
     web_host: str = "0.0.0.0"
-    web_port: int = 3000
+    web_port: int = 3010
 
     model_config = {
         "env_file": ".env",

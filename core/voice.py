@@ -1,11 +1,22 @@
 import asyncio
 import logging
 import queue
-import numpy as np
-import sounddevice as sd
 from typing import Optional, Callable
-from faster_whisper import WhisperModel
-from core.settings import settings
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+try:
+    import sounddevice as sd
+except ImportError:
+    sd = None
+
+try:
+    from faster_whisper import WhisperModel
+except ImportError:
+    WhisperModel = None
 
 logger = logging.getLogger("aide.voice")
 
@@ -21,10 +32,14 @@ class NativeVoiceListener:
         self.is_listening = False
         self.is_recording = False
         self.session_transcript = ""
+        self.available = bool(np is not None and sd is not None and WhisperModel is not None)
 
-        # Load Whisper model locally
-        logger.info("Loading Faster-Whisper model for real-time stream...")
-        self.model = WhisperModel("small", device="cpu", compute_type="int8")
+        if self.available:
+            logger.info("Loading Faster-Whisper model for real-time stream...")
+            self.model = WhisperModel("small", device="cpu", compute_type="int8")
+        else:
+            logger.warning("Native voice listener disabled; optional audio dependencies are unavailable")
+            self.model = None
 
         # Audio settings
         self.sample_rate = 16000
@@ -43,6 +58,9 @@ class NativeVoiceListener:
             self.audio_queue.put(indata.copy())
 
     async def start_listening(self):
+        if not self.available:
+            logger.info("Native voice listener unavailable; skipping audio stream")
+            return
         self.is_listening = True
         logger.info("Native Voice Listener active (System-wide)")
         try:
@@ -69,8 +87,10 @@ class NativeVoiceListener:
             if self.session_transcript:
                 await self.on_transcript(self.session_transcript)
 
-    def _is_silent(self, audio_data: np.ndarray) -> bool:
+    def _is_silent(self, audio_data) -> bool:
         """Check if the end of the audio buffer is silent."""
+        if np is None:
+            return True
         if len(audio_data) == 0:
             return True
         # Check the last 0.3 seconds
@@ -81,7 +101,7 @@ class NativeVoiceListener:
 
     async def _process_segment(self):
         """Transcribe the current buffer and append to session transcript."""
-        if not self.audio_buffer:
+        if not self.audio_buffer or np is None or self.model is None:
             return
 
         audio_data = np.concatenate(self.audio_buffer).flatten()
@@ -98,7 +118,7 @@ class NativeVoiceListener:
     async def run_loop(self):
         """Background loop to manage audio and trigger real-time transcription segments."""
         while True:
-            if self.is_recording:
+            if self.available and self.is_recording:
                 try:
                     # Drain queue into buffer
                     while not self.audio_queue.empty():

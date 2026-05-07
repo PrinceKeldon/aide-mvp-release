@@ -2,7 +2,7 @@
 AIDE -- Local web interface
 A simple chat UI served from your machine plus an owner-facing Your Day view.
 Works completely offline — no internet needed.
-Open http://localhost:3000 in any browser on this machine.
+Open http://localhost:3010 in any browser on this machine.
 """
 
 from __future__ import annotations
