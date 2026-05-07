@@ -215,12 +215,7 @@ def provider_status() -> dict[str, Any]:
         or os.environ.get("GOOGLE_CALENDAR_TOKEN_PATH")
         or "./data/google/calendar_token.json"
     )
-    google_calendar_id = (
-        env.get("GOOGLE_CALENDAR_ID")
-        or env.get("CALENDAR_ACCOUNT_GOOGLE_PRIMARY_GOOGLE_CALENDAR_ID")
-        or os.environ.get("GOOGLE_CALENDAR_ID")
-        or "primary"
-    )
+    google_calendar_id = env.get("GOOGLE_CALENDAR_ID") or os.environ.get("GOOGLE_CALENDAR_ID") or ""
     ics_path = (
         env.get("CALENDAR_ICS_PATH")
         or env.get("CALENDAR_ACCOUNT_LOCAL_ICS_PATH")
@@ -259,18 +254,16 @@ def provider_status() -> dict[str, Any]:
             "google_calendar_token_path": google_token_path,
             "google_calendar_id": google_calendar_id,
             "google_calendar_label": env.get("GOOGLE_CALENDAR_LABEL")
-            or env.get("CALENDAR_ACCOUNT_GOOGLE_PRIMARY_LABEL")
             or os.environ.get("GOOGLE_CALENDAR_LABEL")
-            or "Google Calendar",
+            or "",
             "google_calendar_timezone": env.get("GOOGLE_CALENDAR_TIMEZONE")
-            or env.get("CALENDAR_ACCOUNT_GOOGLE_PRIMARY_TIMEZONE")
             or os.environ.get("GOOGLE_CALENDAR_TIMEZONE")
             or "UTC",
             "calendar_ics_path": ics_path,
             "calendar_ics_label": env.get("CALENDAR_ICS_LABEL")
             or env.get("CALENDAR_ACCOUNT_LOCAL_LABEL")
             or os.environ.get("CALENDAR_ICS_LABEL")
-            or "Local Calendar",
+            or "",
             "calendar_ics_timezone": env.get("CALENDAR_ICS_TIMEZONE")
             or env.get("CALENDAR_ACCOUNT_LOCAL_TIMEZONE")
             or os.environ.get("CALENDAR_ICS_TIMEZONE")

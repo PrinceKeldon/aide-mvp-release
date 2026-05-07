@@ -201,14 +201,14 @@
             <option value="autonomous">Allow autonomous sending</option>
           </select>
         </div>
-        <div class="field"><label for="google_calendar_id">Google Calendar ID</label><input id="google_calendar_id" type="text" autocomplete="off" placeholder="primary"></div>
-        <div class="field"><label for="google_calendar_label">Google Calendar label</label><input id="google_calendar_label" type="text" autocomplete="off" placeholder="Google Calendar"></div>
-        <div class="field"><label for="google_calendar_timezone">Google Calendar timezone</label><input id="google_calendar_timezone" type="text" autocomplete="off" placeholder="Europe/Berlin"></div>
+        <div class="field"><label for="google_calendar_id">Google Calendar ID</label><input id="google_calendar_id" type="text" autocomplete="off" placeholder="Add after Google OAuth"></div>
+        <div class="field"><label for="google_calendar_label">Google Calendar label</label><input id="google_calendar_label" type="text" autocomplete="off" placeholder="Optional display name"></div>
+        <div class="field"><label for="google_calendar_timezone">Google Calendar timezone</label><input id="google_calendar_timezone" type="text" autocomplete="off" placeholder="UTC"></div>
         <div class="field"><label for="google_calendar_credentials_path">Google OAuth credentials path</label><input id="google_calendar_credentials_path" type="text" autocomplete="off" placeholder="./data/google/calendar_credentials.json"></div>
         <div class="field"><label for="google_calendar_token_path">Google token path</label><input id="google_calendar_token_path" type="text" autocomplete="off" placeholder="./data/google/calendar_token.json"><div class="hint">Use your own Google OAuth files. The MVP repo does not ship credentials or tokens.</div></div>
         <div class="field"><label for="calendar_ics_path">Optional local .ics calendar path</label><input id="calendar_ics_path" type="text" autocomplete="off" placeholder="/path/to/calendar.ics"></div>
-        <div class="field"><label for="calendar_ics_label">Local calendar label</label><input id="calendar_ics_label" type="text" autocomplete="off" placeholder="Local Calendar"></div>
-        <div class="field"><label for="calendar_ics_timezone">Local calendar timezone</label><input id="calendar_ics_timezone" type="text" autocomplete="off" placeholder="Europe/Berlin"></div>
+        <div class="field"><label for="calendar_ics_label">Local calendar label</label><input id="calendar_ics_label" type="text" autocomplete="off" placeholder="Optional display name"></div>
+        <div class="field"><label for="calendar_ics_timezone">Local calendar timezone</label><input id="calendar_ics_timezone" type="text" autocomplete="off" placeholder="UTC"></div>
         <button class="primary" onclick="saveIntegrations()">Save Email and Calendar</button>
       </div>
     </section>
@@ -252,11 +252,11 @@
       email_safety_tier: 'approve',
       google_calendar_credentials_path: './data/google/calendar_credentials.json',
       google_calendar_token_path: './data/google/calendar_token.json',
-      google_calendar_id: 'primary',
-      google_calendar_label: 'Google Calendar',
+      google_calendar_id: '',
+      google_calendar_label: '',
       google_calendar_timezone: 'UTC',
       calendar_ics_path: '',
-      calendar_ics_label: 'Local Calendar',
+      calendar_ics_label: '',
       calendar_ics_timezone: 'UTC'
     })) {
       const el = document.getElementById(id);

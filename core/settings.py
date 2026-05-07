@@ -61,11 +61,11 @@ class Settings(BaseSettings):
         "./data/google/calendar_credentials.json"
     )
     google_calendar_token_path: Path = Path("./data/google/calendar_token.json")
-    google_calendar_id: str = "primary"
-    google_calendar_label: str = "Google Calendar"
+    google_calendar_id: str = ""
+    google_calendar_label: str = ""
     google_calendar_timezone: str = "UTC"
     calendar_ics_path: str = ""
-    calendar_ics_label: str = "Local Calendar"
+    calendar_ics_label: str = ""
     calendar_ics_timezone: str = "UTC"
 
     # ── Mesh ────────────────────────────────────────────────────

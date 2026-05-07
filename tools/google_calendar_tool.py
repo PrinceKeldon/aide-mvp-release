@@ -15,7 +15,7 @@ class GoogleCalendarTool(BaseTool):
     name = "google_calendar"
     description = "Manage Google Calendar events. Use this to read, create, modify, or delete appointments."
 
-    def __init__(self, default_calendar_id: str = "primary"):
+    def __init__(self, default_calendar_id: str = ""):
         self.default_calendar_id = default_calendar_id
 
     async def execute(self, input_data: dict[str, Any]) -> str:
@@ -40,7 +40,9 @@ class GoogleCalendarTool(BaseTool):
             return f"Failed to initialize Google Calendar service: {e}"
 
         action = input_data.get("action")
-        calendar_id = input_data.get("calendarId", self.default_calendar_id)
+        calendar_id = input_data.get("calendarId") or self.default_calendar_id
+        if not calendar_id:
+            return "Google Calendar is not configured. Add a Calendar ID in Settings before using calendar tools."
 
         if action == "list":
             return self._list_events(service, calendar_id, input_data)

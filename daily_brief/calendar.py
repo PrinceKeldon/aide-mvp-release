@@ -8,10 +8,10 @@ Current implementation supports:
 Examples:
   CALENDAR_ACCOUNT_<NAME>_ICS_PATH=/path/to/calendar.ics
   CALENDAR_ACCOUNT_<NAME>_PROVIDER=google
-  CALENDAR_ACCOUNT_<NAME>_GOOGLE_CALENDAR_ID=primary
-  CALENDAR_ACCOUNT_<NAME>_LABEL=Work Calendar
-  CALENDAR_ACCOUNT_<NAME>_ALIASES=work,office
-  CALENDAR_ACCOUNT_<NAME>_TIMEZONE=Europe/Berlin
+  CALENDAR_ACCOUNT_<NAME>_GOOGLE_CALENDAR_ID=<calendar-id>
+  CALENDAR_ACCOUNT_<NAME>_LABEL=Calendar
+  CALENDAR_ACCOUNT_<NAME>_ALIASES=calendar
+  CALENDAR_ACCOUNT_<NAME>_TIMEZONE=UTC
 """
 from __future__ import annotations
 

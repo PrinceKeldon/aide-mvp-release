@@ -245,11 +245,11 @@ class IntegrationSettingsRequest(BaseModel):
     email_safety_tier: str = "approve"
     google_calendar_credentials_path: str = "./data/google/calendar_credentials.json"
     google_calendar_token_path: str = "./data/google/calendar_token.json"
-    google_calendar_id: str = "primary"
-    google_calendar_label: str = "Google Calendar"
+    google_calendar_id: str = ""
+    google_calendar_label: str = ""
     google_calendar_timezone: str = "UTC"
     calendar_ics_path: str = ""
-    calendar_ics_label: str = "Local Calendar"
+    calendar_ics_label: str = ""
     calendar_ics_timezone: str = "UTC"
 
 
@@ -1592,18 +1592,14 @@ async def update_integration_settings(req: IntegrationSettingsRequest):
         or "./data/google/calendar_credentials.json",
         "GOOGLE_CALENDAR_TOKEN_PATH": req.google_calendar_token_path.strip()
         or "./data/google/calendar_token.json",
-        "GOOGLE_CALENDAR_ID": req.google_calendar_id.strip() or "primary",
-        "GOOGLE_CALENDAR_LABEL": req.google_calendar_label.strip() or "Google Calendar",
+        "GOOGLE_CALENDAR_ID": req.google_calendar_id.strip(),
+        "GOOGLE_CALENDAR_LABEL": req.google_calendar_label.strip(),
         "GOOGLE_CALENDAR_TIMEZONE": req.google_calendar_timezone.strip() or "UTC",
-        "CALENDAR_ACCOUNT_GOOGLE_PRIMARY_PROVIDER": "google",
-        "CALENDAR_ACCOUNT_GOOGLE_PRIMARY_GOOGLE_CALENDAR_ID": req.google_calendar_id.strip() or "primary",
-        "CALENDAR_ACCOUNT_GOOGLE_PRIMARY_LABEL": req.google_calendar_label.strip() or "Google Calendar",
-        "CALENDAR_ACCOUNT_GOOGLE_PRIMARY_TIMEZONE": req.google_calendar_timezone.strip() or "UTC",
         "CALENDAR_ICS_PATH": req.calendar_ics_path.strip(),
-        "CALENDAR_ICS_LABEL": req.calendar_ics_label.strip() or "Local Calendar",
+        "CALENDAR_ICS_LABEL": req.calendar_ics_label.strip(),
         "CALENDAR_ICS_TIMEZONE": req.calendar_ics_timezone.strip() or "UTC",
         "CALENDAR_ACCOUNT_LOCAL_ICS_PATH": req.calendar_ics_path.strip(),
-        "CALENDAR_ACCOUNT_LOCAL_LABEL": req.calendar_ics_label.strip() or "Local Calendar",
+        "CALENDAR_ACCOUNT_LOCAL_LABEL": req.calendar_ics_label.strip(),
         "CALENDAR_ACCOUNT_LOCAL_TIMEZONE": req.calendar_ics_timezone.strip() or "UTC",
     }
     if req.email_password.strip():
