@@ -70,7 +70,7 @@ from tools.finance_ingest import FinanceIngestor
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="web/static"), name="static")
+app.mount("/static", StaticFiles(directory="interface/static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
