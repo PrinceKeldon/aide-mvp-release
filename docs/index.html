@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vera by AIDE - Local-first personal agent</title>
+  <meta name="description" content="Download Vera by AIDE, a local-first personal agent operating layer for your day, memory, approvals, and trusted devices.">
+  <meta property="og:title" content="Vera by AIDE">
+  <meta property="og:description" content="A local-first personal agent operating layer for your day.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#113f36">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Vera by AIDE home">
+      <span class="brand-mark" aria-hidden="true">V</span>
+      <span>
+        <strong>Vera</strong>
+        <small>by AIDE</small>
+      </span>
+    </a>
+    <nav class="nav-links" aria-label="Primary navigation">
+      <a href="#install">Install</a>
+      <a href="#mvp">MVP</a>
+      <a href="#privacy">Privacy</a>
+      <a href="https://github.com/PrinceKeldon/aide-mvp-release">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Open source MVP for macOS</p>
+        <h1>Vera is a local-first personal agent for your day.</h1>
+        <p class="lede">
+          AIDE runs on your device, remembers your work across sessions, prepares
+          your day, routes approvals, and proves the owner mesh concept across
+          trusted devices without making one cloud service the center of control.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="https://github.com/PrinceKeldon/aide-mvp-release/releases/latest/download/Vera.dmg">
+            Download for macOS
+          </a>
+          <a class="button secondary" href="https://github.com/PrinceKeldon/aide-mvp-release">
+            View source
+          </a>
+        </div>
+        <p class="release-note">
+          The installer is distributed through GitHub Releases. If the download
+          fails, open the latest release and download <code>Vera.dmg</code>.
+        </p>
+      </div>
+
+      <div class="product-preview" aria-label="Vera product preview">
+        <div class="window-bar">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="preview-grid">
+          <div class="preview-panel large">
+            <small>Your Day</small>
+            <h2>Before you wake up</h2>
+            <div class="agenda-line strong"></div>
+            <div class="agenda-line"></div>
+            <div class="agenda-line short"></div>
+          </div>
+          <div class="preview-panel">
+            <small>Approval</small>
+            <p>Draft reply ready</p>
+            <span class="pill">Needs review</span>
+          </div>
+          <div class="preview-panel">
+            <small>Owner Mesh</small>
+            <p>Trusted node online</p>
+            <span class="pill green">Verified</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Key product promises">
+      <div>
+        <strong>Local-first</strong>
+        <span>Your data starts on your machine.</span>
+      </div>
+      <div>
+        <strong>Approval-aware</strong>
+        <span>Sensitive actions wait for you.</span>
+      </div>
+      <div>
+        <strong>Model-portable</strong>
+        <span>Use Ollama or your chosen cloud keys.</span>
+      </div>
+    </section>
+
+    <section id="install" class="section">
+      <div class="section-head">
+        <p class="eyebrow">Install</p>
+        <h2>Drag Vera into Applications, then complete setup.</h2>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <span>1</span>
+          <h3>Download</h3>
+          <p>Download <code>Vera.dmg</code> from the latest GitHub release.</p>
+        </article>
+        <article class="step">
+          <span>2</span>
+          <h3>Install</h3>
+          <p>Open the DMG and drag <code>Vera.app</code> into Applications.</p>
+        </article>
+        <article class="step">
+          <span>3</span>
+          <h3>Open</h3>
+          <p>Launch Vera. It starts the local web app and opens setup at <code>localhost:3000</code>.</p>
+        </article>
+        <article class="step">
+          <span>4</span>
+          <h3>Configure</h3>
+          <p>Choose Ollama or a cloud model key. Add Telegram, email, and calendar when ready.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="mvp" class="section feature-section">
+      <div class="section-head">
+        <p class="eyebrow">What is in the MVP</p>
+        <h2>One memory, one approval fabric, many trusted devices.</h2>
+      </div>
+      <div class="feature-grid">
+        <article>
+          <h3>Your Day</h3>
+          <p>A prepared operating view for calendar, unread email, pending approvals, and tasks.</p>
+        </article>
+        <article>
+          <h3>Email and approvals</h3>
+          <p>Read, search, draft, and send with approval gates on sensitive outbound actions.</p>
+        </article>
+        <article>
+          <h3>Owner Mesh</h3>
+          <p>Pair trusted devices, inspect trust, route approvals, and test delegated work.</p>
+        </article>
+        <article>
+          <h3>M-Peer foundations</h3>
+          <p>Early sovereign peer collaboration model: another person's AIDE is not your device.</p>
+        </article>
+        <article>
+          <h3>Model routing</h3>
+          <p>Run local-first with Ollama, or route selected work to Groq, Gemini, or OpenAI.</p>
+        </article>
+        <article>
+          <h3>FinanceOS opt-in</h3>
+          <p>Local finance tooling is available as an optional module, not the default MVP surface.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="privacy" class="section split">
+      <div>
+        <p class="eyebrow">Privacy and control</p>
+        <h2>Your agent should not require surrendering your day.</h2>
+      </div>
+      <div class="copy-block">
+        <p>
+          Vera is designed around owner control: local storage, explicit model
+          keys, approval tiers, trusted device pairing, and revocable mesh trust.
+          Telegram is optional but strongly recommended as a mobile owner
+          console for approvals and delegated node work.
+        </p>
+        <p>
+          AIDE is licensed under AGPL-3.0. You can use, study, modify, and
+          self-host it. If you run a modified network service for others, share
+          the modified source under the same license.
+        </p>
+      </div>
+    </section>
+
+    <section class="section troubleshooting">
+      <div class="section-head">
+        <p class="eyebrow">First-run notes</p>
+        <h2>If macOS blocks the app, open it intentionally.</h2>
+      </div>
+      <div class="note-grid">
+        <article>
+          <h3>Unidentified developer</h3>
+          <p>
+            This MVP build may not be notarized. If macOS blocks it, open
+            System Settings, allow the app, then launch Vera again.
+          </p>
+        </article>
+        <article>
+          <h3>Local URL</h3>
+          <p>
+            Vera runs locally at <code>http://localhost:3000</code>. If setup
+            does not open automatically, paste that address into your browser.
+          </p>
+        </article>
+        <article>
+          <h3>Logs</h3>
+          <p>
+            Runtime logs live at <code>~/.aide/data/aide.log</code>. They are
+            useful when checking model, mesh, email, or calendar setup.
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Vera by AIDE</span>
+    <span>AGPL-3.0</span>
+    <a href="https://github.com/PrinceKeldon/aide-mvp-release">GitHub</a>
+  </footer>
+</body>
+</html>
