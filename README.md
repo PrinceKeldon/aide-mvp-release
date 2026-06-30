@@ -15,18 +15,21 @@ There is no required cloud account and no telemetry.
 
 ## What AIDE does today
 
-- **Daily brief** — a Telegram message each morning with your calendar,
-  unread email, pending approvals, and prepared tasks for the day
+- **Daily brief** — a prepared view of your calendar, unread email,
+  pending approvals, and tasks for the day
 - **Email** — read, search, draft, and send, with approval gates on
   anything that leaves your inbox
 - **Projects** — long-horizon task tracking with autonomous subtask
   advancement and check-ins
-- **Finance** — turn a bank statement PDF into a categorised monthly
-  overview, processed locally
 - **Web** — search and browse on your behalf
-- **Mesh** — pair a second device (e.g. your phone) so your agents can
-  ping, delegate tasks, and route approvals to whichever device is
-  convenient, signed and verified end to end
+- **Owner Mesh and M-Peer** — pair a second trusted device so your agents
+  can ping, delegate work, route approvals, and prove the local owner mesh
+  model from day one, signed and verified end to end
+
+Optional MVP modules:
+
+- **FinanceOS** — opt-in local finance tooling for bank-statement intake
+  and monthly overviews. It is not part of the default MVP surface.
 
 AIDE runs primarily on a local model (Ollama) and can route specific tasks
 to Groq, Gemini, or OpenAI if you provide API keys — you choose what goes
@@ -45,15 +48,25 @@ python3 main.py
 ```
 
 On first run, AIDE opens a setup wizard in your browser at
-`http://localhost:3000/onboarding`. You'll need:
+`http://localhost:3000/setup`. You can start with either:
 
-- A free [Groq API key](https://console.groq.com/keys) (required)
-- A [Telegram bot token](https://t.me/BotFather) (required — this is how
-  AIDE reaches you)
-- Optionally, Gemini and/or OpenAI keys for tasks that benefit from them
+- a local Ollama model, or
+- a cloud model key such as [Groq](https://console.groq.com/keys), Gemini,
+  or OpenAI.
+
+Telegram is optional but strongly recommended. It gives AIDE a mobile owner
+console for approvals, mesh coordination, and delegated node work in small
+household or enterprise-style setups. Create a bot token with
+[@BotFather](https://t.me/BotFather) and paste it into setup when ready.
 
 No terminal interaction is needed after that — the wizard writes your
 configuration for you.
+
+Coming later:
+
+- Fit Genie
+- native mobile apps
+- enterprise controls
 
 ### Running a local model
 
