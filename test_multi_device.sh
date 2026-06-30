@@ -1,0 +1,37 @@
+#!/bin/bash
+
+echo "=================================="
+echo "AIDE Multi-Device Test"
+echo "=================================="
+echo ""
+
+echo "Test Scenario:"
+echo "1. Mac generates brief and shares via mesh"
+echo "2. Android receives and displays brief"
+echo "3. User takes action on Android"
+echo "4. Action syncs back to Mac"
+echo ""
+
+echo "Prerequisites:"
+echo "✓ Mac and Android paired (mesh/trust_graph.py)"
+echo "✓ Both devices on same network"
+echo "✓ Mesh discovery running on both"
+echo ""
+
+echo "Commands:"
+echo ""
+echo "On Mac (Full Node):"
+echo "  python generate_and_share_brief.py"
+echo ""
+echo "On Android/Another Terminal (Hybrid Node):"
+echo "  python mobile_interactive_screen.py"
+echo ""
+echo "Expected Flow:"
+echo "1. Mac generates brief"
+echo "2. Mac shares via mesh → Android receives"
+echo "3. Android displays morning screen"
+echo "4. User acts on Android → Mac receives action"
+echo "5. Both devices stay in sync"
+echo ""
+
+read -p "Press Enter to continue..."

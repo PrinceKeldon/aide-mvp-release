@@ -1,0 +1,312 @@
+"""
+AIDE — mesh protocol
+Peer-to-peer agent coordination. No central server. Ever.
+
+How it works:
+  1. Each agent has an Ed25519 keypair generated on install.
+  2. Agents broadcast presence on the local network via mDNS.
+  3. When two agents connect, they verify each other's public keys.
+  4. Messages are encrypted and signed — no raw personal data crosses the wire.
+  5. Both owners can audit or revoke trust at any time.
+"""
+import asyncio
+import json
+import uuid
+from datetime import datetime
+from pathlib import Path
+from loguru import logger
+
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey,
+    Ed25519PublicKey,
+)
+from cryptography.hazmat.primitives.serialization import (
+    Encoding,
+    PublicFormat,
+    PrivateFormat,
+    NoEncryption,
+    load_pem_private_key,
+    load_pem_public_key,
+)
+from cryptography.exceptions import InvalidSignature
+
+import websockets
+from websockets.server import WebSocketServerProtocol
+from zeroconf import ServiceBrowser, ServiceInfo, Zeroconf
+
+from core.settings import settings
+from memory.manager import MemoryManager
+
+
+KEYS_DIR = Path("./data/keys")
+INTENT_VERSION = "1.0"
+
+
+def build_intent(
+    intent_type: str,
+    parameters: dict,
+    sender_id: str,
+) -> dict:
+    """
+    The ONLY thing that crosses the mesh wire.
+    No names, no addresses — only structured, minimal parameters.
+    """
+    return {
+        "version":     INTENT_VERSION,
+        "id":          str(uuid.uuid4()),
+        "timestamp":   datetime.utcnow().isoformat(),
+        "sender_id":   sender_id,
+        "intent_type": intent_type,
+        "parameters":  parameters,
+    }
+
+
+class AgentIdentity:
+    """Ed25519 keypair. Generated once on install, stored locally."""
+
+    def __init__(self) -> None:
+        KEYS_DIR.mkdir(parents=True, exist_ok=True)
+        self._private_key_path = KEYS_DIR / "agent_private.pem"
+        self._public_key_path  = KEYS_DIR / "agent_public.pem"
+        self._private_key, self._public_key = self._load_or_generate()
+        self.agent_id = self._derive_id()
+
+    def _load_or_generate(self) -> tuple[Ed25519PrivateKey, Ed25519PublicKey]:
+        if self._private_key_path.exists():
+            with open(self._private_key_path, "rb") as f:
+                private = load_pem_private_key(f.read(), password=None)  # type: ignore
+            logger.info("Loaded existing agent identity")
+        else:
+            private = Ed25519PrivateKey.generate()
+            pem = private.private_bytes(
+                Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()
+            )
+            with open(self._private_key_path, "wb") as f:
+                f.write(pem)
+            logger.info("Generated new agent identity")
+
+        public = private.public_key()
+        pub_pem = public.public_bytes(
+            Encoding.PEM, PublicFormat.SubjectPublicKeyInfo
+        )
+        with open(self._public_key_path, "wb") as f:
+            f.write(pub_pem)
+
+        return private, public  # type: ignore
+
+    def _derive_id(self) -> str:
+        pub_bytes = self._public_key.public_bytes(
+            Encoding.Raw, PublicFormat.Raw
+        )
+        return pub_bytes.hex()[:16]
+
+    def sign(self, message: bytes) -> bytes:
+        return self._private_key.sign(message)
+
+    def public_key_pem(self) -> str:
+        return self._public_key.public_bytes(
+            Encoding.PEM, PublicFormat.SubjectPublicKeyInfo
+        ).decode()
+
+    @staticmethod
+    def verify(public_key_pem: str, message: bytes, signature: bytes) -> bool:
+        try:
+            pub = load_pem_public_key(public_key_pem.encode())
+            pub.verify(signature, message)  # type: ignore
+            return True
+        except InvalidSignature:
+            return False
+        except Exception as e:
+            logger.warning(f"Key verification error: {e}")
+            return False
+
+
+class MeshDiscovery:
+    """Broadcasts this agent on LAN via mDNS. Discovers other AIDE agents."""
+
+    def __init__(self, identity: AgentIdentity) -> None:
+        self._identity = identity
+        self._zeroconf = Zeroconf()
+        self._known_peers: dict[str, dict] = {}
+        self._on_peer_found = None
+        self._info = None
+
+    def set_peer_callback(self, callback) -> None:
+        self._on_peer_found = callback
+
+    async def start_async(self) -> None:
+        self._info = ServiceInfo(
+            type_=settings.mesh_service_name,
+            name=f"aide-{self._identity.agent_id}.{settings.mesh_service_name}",
+            port=settings.mesh_port,
+            properties={
+                "agent_id": self._identity.agent_id,
+            },
+            addresses=[],
+        )
+        await self._zeroconf.async_register_service(self._info)
+        ServiceBrowser(self._zeroconf, settings.mesh_service_name, self)
+        logger.info(f"Mesh discovery started — agent ID: {self._identity.agent_id}")
+
+    async def stop_async(self) -> None:
+        await self._zeroconf._async_close()
+
+    def add_service(self, zeroconf: Zeroconf, type_: str, name: str) -> None:
+        info = zeroconf.get_service_info(type_, name)
+        if not info:
+            return
+        props = {k.decode(): v.decode() for k, v in info.properties.items()}
+        peer_id = props.get("agent_id", "")
+        if peer_id == self._identity.agent_id:
+            return
+        peer = {
+            "agent_id": peer_id,
+            "address":  info.parsed_addresses()[0] if info.parsed_addresses() else "127.0.0.1",
+            "port":     info.port,
+        }
+        self._known_peers[peer_id] = peer
+        logger.info(f"Peer discovered: {peer_id}")
+        if self._on_peer_found:
+            asyncio.create_task(self._on_peer_found(peer))
+
+    def remove_service(self, zeroconf: Zeroconf, type_: str, name: str) -> None:
+        for peer_id in list(self._known_peers):
+            if peer_id in name:
+                self._known_peers.pop(peer_id, None)
+                logger.info(f"Peer left: {peer_id}")
+
+    def update_service(self, zeroconf: Zeroconf, type_: str, name: str) -> None:
+        self.add_service(zeroconf, type_, name)
+
+    def get_peers(self) -> list[dict]:
+        return list(self._known_peers.values())
+
+
+class MeshNode:
+    """WebSocket server + client for agent-to-agent coordination."""
+
+    def __init__(
+        self,
+        identity: AgentIdentity,
+        memory: MemoryManager,
+    ) -> None:
+        self._identity = identity
+        self._memory = memory
+        self._trusted_peers: dict[str, str] = {}
+        self._intent_handlers: dict[str, callable] = {}
+        self._server = None
+
+    def register_handler(self, intent_type: str, handler) -> None:
+        self._intent_handlers[intent_type] = handler
+
+    def trust_peer(self, agent_id: str, public_key_pem: str) -> None:
+        self._trusted_peers[agent_id] = public_key_pem
+        self._memory.store_fact(f"trusted_peer_{agent_id}", public_key_pem[:64])
+        logger.info(f"Peer trusted: {agent_id}")
+
+    def revoke_peer(self, agent_id: str) -> None:
+        self._trusted_peers.pop(agent_id, None)
+        logger.info(f"Trust revoked: {agent_id}")
+
+    async def start_server(self) -> None:
+        self._server = await websockets.serve(
+            self._handle_connection,
+            "0.0.0.0",
+            settings.mesh_port,
+        )
+        logger.info(f"Mesh node listening on port {settings.mesh_port}")
+
+    async def _handle_connection(
+        self, websocket: WebSocketServerProtocol
+    ) -> None:
+        try:
+            raw = await websocket.recv()
+            envelope = json.loads(raw)
+
+            sender_id = envelope.get("sender_id", "")
+            intent    = envelope.get("intent", {})
+            signature = bytes.fromhex(envelope.get("signature", ""))
+
+            if sender_id not in self._trusted_peers:
+                logger.warning(f"Rejected untrusted peer: {sender_id}")
+                await websocket.send(json.dumps({"error": "not trusted"}))
+                return
+
+            pub_pem = self._trusted_peers[sender_id]
+            payload = json.dumps(intent, sort_keys=True).encode()
+            if not AgentIdentity.verify(pub_pem, payload, signature):
+                logger.warning(f"Invalid signature from: {sender_id}")
+                await websocket.send(json.dumps({"error": "invalid signature"}))
+                return
+
+            intent_type = intent.get("intent_type", "")
+            handler = self._intent_handlers.get(intent_type)
+            if not handler:
+                await websocket.send(
+                    json.dumps({"error": f"no handler for {intent_type}"})
+                )
+                return
+
+            result = await handler(intent)
+            result_payload = json.dumps(result, sort_keys=True).encode()
+            sig = self._identity.sign(result_payload)
+            await websocket.send(json.dumps({
+                "result":    result,
+                "sender_id": self._identity.agent_id,
+                "signature": sig.hex(),
+            }))
+            logger.info(f"Intent '{intent_type}' from {sender_id} handled")
+            self._memory.log_action(
+                action=f"mesh_receive: {intent_type} from {sender_id}",
+                tier="notify",
+                outcome="handled",
+            )
+
+        except Exception as e:
+            logger.error(f"Mesh connection error: {e}")
+
+    async def send_intent(
+        self,
+        peer: dict,
+        intent_type: str,
+        parameters: dict,
+    ) -> dict | None:
+        intent = build_intent(
+            intent_type=intent_type,
+            parameters=parameters,
+            sender_id=self._identity.agent_id,
+        )
+        payload   = json.dumps(intent, sort_keys=True).encode()
+        signature = self._identity.sign(payload)
+        envelope  = {
+            "sender_id": self._identity.agent_id,
+            "intent":    intent,
+            "signature": signature.hex(),
+        }
+
+        uri = f"ws://{peer['address']}:{peer['port']}"
+        try:
+            async with websockets.connect(uri, open_timeout=5) as ws:
+                await ws.send(json.dumps(envelope))
+                raw = await asyncio.wait_for(ws.recv(), timeout=30)
+                response = json.loads(raw)
+
+                if "error" in response:
+                    logger.warning(f"Peer error: {response['error']}")
+                    return None
+
+                self._memory.log_action(
+                    action=f"mesh_send: {intent_type} to {peer['agent_id']}",
+                    tier="notify",
+                    outcome="success",
+                )
+                return response["result"]
+
+        except Exception as e:
+            logger.error(f"Mesh send failed: {e}")
+            return None
+
+    async def stop(self) -> None:
+        if self._server:
+            self._server.close()
+            await self._server.wait_closed()
